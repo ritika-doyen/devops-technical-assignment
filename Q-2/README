@@ -1,0 +1,42 @@
+# Q2 - Circuit Breaker Pattern in Python
+
+## Overview
+This example demonstrates the **Circuit Breaker pattern** in Python, which is a fault-tolerance mechanism widely used in **microservices architectures**. It prevents cascading failures when a downstream service becomes slow or unavailable.  
+
+## Why Circuit Breaker?
+In distributed systems, Service A may rely on Service B for data or processing. If Service B fails or responds too slowly, Service A can hang while waiting. If many requests pile up, this can trigger a chain reaction of failures across multiple services.  
+
+The Circuit Breaker pattern solves this by monitoring failures and blocking further calls when a threshold is exceeded. Instead of wasting resources waiting for timeouts, the breaker **fails fast** and gives the failing service time to recover.
+
+## Architecture
+stateDiagram-v2
+    [*] --> CLOSED
+    CLOSED --> OPEN: failures >= threshold
+    OPEN --> HALF_OPEN: after timeout
+    HALF_OPEN --> CLOSED: trial successes
+    HALF_OPEN --> OPEN: trial failures
+
+## How It Works
+The circuit breaker has three states:
+- **Closed**: Normal operation. All requests pass through.
+- **Open**: Requests are blocked immediately after repeated failures.
+- **Half-Open**: After a timeout, limited “trial” requests are allowed.  
+  - If these succeed → breaker resets to **Closed**.  
+  - If they fail → breaker returns to **Open**.
+
+This prevents constant hammering of an unhealthy service and allows graceful recovery.
+
+## Benefits
+- **Resilience**: Isolates failures so one bad service doesn’t crash others.
+- **Reduced Latency**: Blocks failing requests immediately, avoiding long waits.
+- **Controlled Recovery**: Uses trial requests to safely restore connectivity.
+- **Integration with DevOps**: Logs and metrics from the breaker can be tied into monitoring tools (Prometheus, Grafana, CloudWatch) to trigger alerts.
+- **Improved User Experience**: Keeps upstream services responsive even when dependencies degrade.
+
+## Files Included
+- `circuit_breaker.py` → Python implementation with detailed comments.
+- `diagram.png` → Architecture diagram showing Service A, Circuit Breaker, and Service B.
+
+## How to Run
+```bash
+python3 circuit_breaker.py

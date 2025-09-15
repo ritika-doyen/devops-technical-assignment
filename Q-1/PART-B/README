@@ -1,0 +1,41 @@
+# Q1 - Terraform VPC + ALB Architecture
+
+## Architecture summary
+- A single VPC with CIDR 10.0.0.0/16.
+- 2 public subnets (one per AZ) for ALB and NAT gateway.
+- 2 private subnets (one per AZ) for application EC2 instances.
+- Internet Gateway attached to the VPC for public traffic.
+- NAT Gateway in the first public subnet to allow private subnet outbound internet access.
+- Security groups:
+  - alb-sg: allows HTTP (80) from the internet.
+  - app-sg: allows only traffic from alb-sg on port 8080 (least privilege).
+- Application Load Balancer (ALB) in public subnets with target group on port 8080.
+- EC2 instances running nginx on port 8080 in private subnets are registered with the target group.
+
+## Files
+- versions.tf: Terraform/version and backend (local for simplicity).
+- provider.tf: AWS provider configuration.
+- variables.tf: Input variables and defaults.
+- data.tf: AZs and AMI lookup.
+- vpc.tf: VPC, subnets, IGW, NAT, route tables.
+- security.tf: Security groups.
+- ec2.tf: EC2 instance definitions and simple user_data to run nginx on 8080.
+- alb.tf: ALB, target group, listener, attachments.
+- outputs.tf: Useful outputs.
+- terraform.tfvars.example: Example variables file.
+
+## How to run
+1. Copy `terraform.tfvars.example` to `terraform.tfvars` and set variables (especially ssh_key_name if you want SSH).
+2. `terraform init`
+3. `terraform plan -out plan.tfplan`
+   - Review the plan — this is the safe detection step.
+4. `terraform apply plan.tfplan`
+5. To destroy: `terraform destroy`
+
+## Notes & production considerations
+- Backend uses local state for simplicity. For collaboration use S3 backend with DynamoDB locking.
+- NAT Gateway is single-AZ for cost. For high availability create NATs in each AZ and route accordingly.
+- Consider autoscaling groups with launch templates instead of fixed `aws_instance` resources.
+- Add IAM roles, instance profiles for least privilege access if instances need AWS APIs.
+- Lock down SSH ingress to known admin IP ranges.
+- Use HTTPS on the ALB with ACM certificate for production.

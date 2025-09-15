@@ -1,0 +1,10 @@
+aws_region = "us-east-1"
+instance_count = 2
+instance_type = "t3.micro"
+ssh_key_name = "my-keypair"  # set or leave empty
+tags = {
+  Project = "devops-assignment"
+  Owner   = "Ritika"
+  Env     = "dev"
+}
+# You can optionally pass availability_zones = ["us-east-1a","us-east-1b"]
