@@ -1,0 +1,155 @@
+# k8s-istio-multiservice-app
+
+A complete microservices application running on **Kubernetes** with **Istio** as the service mesh.  
+This project includes a **frontend**, **backend**, and **database** service, all communicating securely within the cluster and exposed through Istio’s **Ingress Gateway**.
+
+---
+
+## Project Structure
+
+```
+k8s-istio-multiservice-app/
+├── manifests/               # Kubernetes YAML files for each service
+│   ├── backend-deployment.yaml
+│   ├── backend-service.yaml
+│   ├── database-deployment.yaml
+│   ├── database-service.yaml
+│   ├── frontend-deployment.yaml
+│   └── frontend-service.yaml
+│
+├── istio/                   # Istio gateway and virtual service configs
+│   ├── gateway.yaml
+│   └── virtualservice.yaml
+```
+
+---
+
+## Requirements
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) with **Kubernetes enabled**
+- `kubectl` installed and configured
+- [Istio CLI (`istioctl`)](https://istio.io/latest/docs/setup/getting-started/#download) installed
+
+---
+
+## Setup Instructions
+
+### 1. Enable Kubernetes in Docker Desktop
+
+- Open Docker Desktop → Settings → Kubernetes → Enable Kubernetes  
+- Wait for Kubernetes to be "Running"
+
+---
+
+### 2. Download and Install Istio
+
+If you haven’t installed Istio CLI:
+
+```bash
+# Download Istio for Windows
+Download the latest `istioctl-<version>-win.zip` from: https://github.com/istio/istio/releases
+
+# Extract and add istioctl to your PATH
+```
+
+Then install Istio:
+
+```bash
+istioctl install --set profile=demo -y
+```
+
+---
+
+### 3. Deploy Application to Kubernetes
+
+From the project root, run:
+
+```bash
+kubectl apply -f manifests/
+kubectl apply -f istio/gateway.yaml
+kubectl apply -f istio/virtualservice.yaml
+```
+
+---
+
+### 4. Expose the App
+
+#### Option A: Port Forward (Quick Test)
+
+```bash
+kubectl port-forward svc/frontend 8080:80
+```
+
+Open your browser:
+
+```
+http://localhost:8080/
+```
+
+---
+
+#### Option B: Using Istio Ingress Gateway (Permanent)
+
+Check if gateway is accessible:
+
+```bash
+kubectl get svc -n istio-system
+```
+
+If `EXTERNAL-IP` is `localhost` and port `31275` is mapped:
+
+```
+http://localhost:31275/
+```
+
+If `localhost` doesn’t work, edit service type:
+
+```bash
+kubectl edit svc istio-ingressgateway -n istio-system
+```
+
+Change `type: LoadBalancer` to `type: NodePort`, then:
+
+```bash
+kubectl get svc -n istio-system
+```
+
+Use the NodePort (e.g., 32XXX):
+
+```
+http://localhost:32XXX/
+```
+
+---
+
+## Verify Everything is Running
+
+```bash
+kubectl get pods
+kubectl get svc
+kubectl get gateway
+kubectl get virtualservice
+```
+
+---
+
+## Tools Used
+
+-  Docker Desktop
+-  Kubernetes
+-  Istio Service Mesh
+-  PostgreSQL or any sample DB
+-  Nginx frontend / sample web app
+
+---
+
+##  Author
+
+**Ritika Shah**  
+DevOps Engineer Intern 
+
+---
+
+## 🏁 License
+
+MIT License – use freely, customize as needed!
