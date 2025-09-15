@@ -7,6 +7,7 @@ Each question is placed in its own folder (`Q1` … `Q5`) with code, configurati
 
 ## Folder Structure
 
+```
 devops-technical-assignment/
 │
 ├── Q1/ # Terraform multi-tier VPC + ALB
@@ -51,6 +52,7 @@ devops-technical-assignment/
 │ └── README.md
 │
 └── README.md # This file
+```
 
 ---
 
